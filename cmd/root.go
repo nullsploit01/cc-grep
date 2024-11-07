@@ -43,7 +43,12 @@ to quickly create a Cobra application.`,
 			os.Exit(1)
 		}
 
-		cmd.OutOrStdout().Write([]byte(strings.Join(matches, "\n") + "\n"))
+		output := strings.Join(matches, "\n")
+		if len(matches) > 0 && matches[len(matches)-1] == "" {
+			output = strings.TrimRight(output, "\n")
+		}
+
+		cmd.OutOrStdout().Write([]byte(output))
 	},
 }
 

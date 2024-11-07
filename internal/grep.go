@@ -1,9 +1,10 @@
 package internal
 
 import (
-	"bufio"
+	"io"
 	"os"
 	"regexp"
+	"strings"
 )
 
 type Grep struct {
@@ -18,24 +19,26 @@ func (g *Grep) Grep(pattern string, file *os.File) ([]string, error) {
 		return nil, err
 	}
 
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	if pattern == "" {
+		return []string{string(content)}, nil
+	}
+
 	re, err := regexp.Compile(pattern)
 	if err != nil {
 		return nil, err
 	}
 
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-
+	lines := strings.Split(string(content), "\n")
 	var matches []string
-	for scanner.Scan() {
-		line := scanner.Text()
+	for _, line := range lines {
 		if re.MatchString(line) {
 			matches = append(matches, line)
 		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, err
 	}
 
 	return matches, nil
