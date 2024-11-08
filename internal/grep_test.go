@@ -7,7 +7,7 @@ import (
 )
 
 func TestGrep(t *testing.T) {
-	fileContent := "This is a test line\nAnother line\nLine with pattern\npattern line again\n"
+	fileContent := "This is a test line\nAnother line\nLine with pattern\nPattern line again\n"
 
 	createTempFile := func(content string) (*os.File, error) {
 		tmpFile, err := os.CreateTemp("", "testfile")
@@ -42,7 +42,7 @@ func TestGrep(t *testing.T) {
 		{
 			name:           "Non-empty pattern",
 			pattern:        "pattern",
-			expectedOutput: []string{"Line with pattern", "pattern line again"},
+			expectedOutput: []string{"Line with pattern", "Pattern line again"},
 		},
 		{
 			name:           "Empty pattern - returns all content",

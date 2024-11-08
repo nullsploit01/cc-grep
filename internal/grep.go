@@ -28,7 +28,7 @@ func (g *Grep) Grep(pattern string, file *os.File) ([]string, error) {
 		return []string{string(content)}, nil
 	}
 
-	re, err := regexp.Compile(pattern)
+	re, err := regexp.Compile("(?i)" + pattern)
 	if err != nil {
 		return nil, err
 	}
