@@ -1,4 +1,4 @@
-# CC-Grep - Custom Command-Line Grep Utility
+# CC-Grep - Another Command-Line Grep Utility
 
 CC-Grep is a custom command-line grep utility developed as part of a coding challenge. It supports case-insensitive searches, recursive file matching, and inverted matches to display lines that do not contain the specified pattern.
 
