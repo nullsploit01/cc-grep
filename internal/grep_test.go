@@ -8,9 +8,8 @@ import (
 
 func TestGrep(t *testing.T) {
 	fileContent := "This is a test line\nAnother line\nLine with pattern\nPattern line again\n"
-
 	createTempFile := func(content string) (*os.File, error) {
-		tmpFile, err := os.CreateTemp("", "testfile")
+		tmpFile, err := os.CreateTemp(os.TempDir(), "testfile.txt")
 		if err != nil {
 			return nil, err
 		}
@@ -28,7 +27,7 @@ func TestGrep(t *testing.T) {
 	defer func() {
 		files, _ := os.ReadDir(os.TempDir())
 		for _, file := range files {
-			if strings.HasPrefix(file.Name(), "testfile") {
+			if strings.HasPrefix(file.Name(), "testfile.txt") {
 				os.Remove(os.TempDir() + "/" + file.Name())
 			}
 		}
@@ -70,8 +69,7 @@ func TestGrep(t *testing.T) {
 				t.Fatalf("failed to create temp file: %v", err)
 			}
 			defer tmpFile.Close()
-
-			matches, err := g.Grep(tt.pattern, tmpFile, true)
+			matches, err := g.Grep(tt.pattern, os.TempDir()+"/"+"testfile.txt", true, false)
 			if err != nil {
 				t.Fatalf("Grep() error = %v", err)
 			}

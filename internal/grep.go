@@ -18,7 +18,7 @@ func NewGrep() *Grep {
 	return &Grep{}
 }
 
-func (g *Grep) Grep(pattern string, fileName string, caseInsensetive bool) ([]string, error) {
+func (g *Grep) Grep(pattern string, fileName string, caseInsensetive, invert bool) ([]string, error) {
 	file, err := ReadFile(fileName)
 	if err != nil {
 		return nil, err
@@ -30,10 +30,10 @@ func (g *Grep) Grep(pattern string, fileName string, caseInsensetive bool) ([]st
 		return nil, err
 	}
 
-	return g.GetMatches(string(content), pattern, caseInsensetive)
+	return g.GetMatches(string(content), pattern, caseInsensetive, invert)
 }
 
-func (g *Grep) RecursiveGrep(filePattern string, pattern string, caseInsensetive bool) ([]RecursiveGrepResult, error) {
+func (g *Grep) RecursiveGrep(filePattern string, pattern string, caseInsensetive, invert bool) ([]RecursiveGrepResult, error) {
 	files, err := ReadFilesFromGlob(filePattern)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (g *Grep) RecursiveGrep(filePattern string, pattern string, caseInsensetive
 
 	var result []RecursiveGrepResult
 	for _, file := range files {
-		matches, err := g.Grep(pattern, file.Name(), caseInsensetive)
+		matches, err := g.Grep(pattern, file.Name(), caseInsensetive, invert)
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +55,7 @@ func (g *Grep) RecursiveGrep(filePattern string, pattern string, caseInsensetive
 	return result, nil
 }
 
-func (g *Grep) GetMatches(content string, pattern string, caseInsensetive bool) ([]string, error) {
+func (g *Grep) GetMatches(content string, pattern string, caseInsensetive, invert bool) ([]string, error) {
 	if pattern == "" {
 		return []string{content}, nil
 	}
@@ -72,7 +72,8 @@ func (g *Grep) GetMatches(content string, pattern string, caseInsensetive bool) 
 	lines := strings.Split(string(content), "\n")
 	var matches []string
 	for _, line := range lines {
-		if re.MatchString(line) {
+		isMatch := re.MatchString(line)
+		if (isMatch && !invert) || (!isMatch && invert) {
 			matches = append(matches, line)
 		}
 	}

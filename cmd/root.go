@@ -13,6 +13,7 @@ import (
 
 var caseInsensetive bool
 var recursive bool
+var invert bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -36,7 +37,7 @@ to quickly create a Cobra application.`,
 		g := internal.NewGrep()
 
 		if recursive {
-			matches, err := g.RecursiveGrep(fileName, pattern, caseInsensetive)
+			matches, err := g.RecursiveGrep(fileName, pattern, caseInsensetive, invert)
 			if err != nil {
 				cmd.ErrOrStderr().Write([]byte(err.Error() + "\n"))
 				os.Exit(1)
@@ -51,7 +52,7 @@ to quickly create a Cobra application.`,
 			os.Exit(0)
 		}
 
-		matches, err := g.Grep(pattern, fileName, caseInsensetive)
+		matches, err := g.Grep(pattern, fileName, caseInsensetive, invert)
 		if err != nil {
 			cmd.ErrOrStderr().Write([]byte(err.Error() + "\n"))
 			os.Exit(1)
@@ -86,4 +87,5 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolVarP(&caseInsensetive, "case-insensetive", "i", false, "Case insensetive")
 	rootCmd.Flags().BoolVarP(&recursive, "recursive", "r", false, "Recursive")
+	rootCmd.Flags().BoolVarP(&invert, "invert", "v", false, "Invert")
 }
