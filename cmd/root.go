@@ -12,6 +12,7 @@ import (
 )
 
 var caseInsensetive bool
+var recursive bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -30,18 +31,18 @@ to quickly create a Cobra application.`,
 		}
 
 		pattern := args[0]
-
-		file, err := os.Open(args[1])
-		if err != nil {
-			cmd.PrintErrln("Error opening file:", err)
-			os.Exit(1)
-		}
-		defer file.Close()
+		fileName := args[1]
 
 		g := internal.NewGrep()
-		matches, err := g.Grep(pattern, file, caseInsensetive)
+
+		if recursive {
+			g.RecursiveGrep()
+			os.Exit(0)
+		}
+
+		matches, err := g.Grep(pattern, fileName, caseInsensetive)
 		if err != nil {
-			cmd.PrintErrln("Error running grep:", err)
+			cmd.ErrOrStderr().Write([]byte(err.Error() + "\n"))
 			os.Exit(1)
 		}
 

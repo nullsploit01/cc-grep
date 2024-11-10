@@ -2,7 +2,6 @@ package internal
 
 import (
 	"io"
-	"os"
 	"regexp"
 	"strings"
 )
@@ -14,10 +13,12 @@ func NewGrep() *Grep {
 	return &Grep{}
 }
 
-func (g *Grep) Grep(pattern string, file *os.File, caseInsensetive bool) ([]string, error) {
-	if _, err := file.Seek(0, 0); err != nil {
+func (g *Grep) Grep(pattern string, fileName string, caseInsensetive bool) ([]string, error) {
+	file, err := ReadFile(fileName)
+	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 
 	content, err := io.ReadAll(file)
 	if err != nil {
