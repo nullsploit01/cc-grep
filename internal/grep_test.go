@@ -71,7 +71,7 @@ func TestGrep(t *testing.T) {
 			}
 			defer tmpFile.Close()
 
-			matches, err := g.Grep(tt.pattern, tmpFile)
+			matches, err := g.Grep(tt.pattern, tmpFile, true)
 			if err != nil {
 				t.Fatalf("Grep() error = %v", err)
 			}

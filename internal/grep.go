@@ -14,7 +14,7 @@ func NewGrep() *Grep {
 	return &Grep{}
 }
 
-func (g *Grep) Grep(pattern string, file *os.File) ([]string, error) {
+func (g *Grep) Grep(pattern string, file *os.File, caseInsensetive bool) ([]string, error) {
 	if _, err := file.Seek(0, 0); err != nil {
 		return nil, err
 	}
@@ -28,7 +28,11 @@ func (g *Grep) Grep(pattern string, file *os.File) ([]string, error) {
 		return []string{string(content)}, nil
 	}
 
-	re, err := regexp.Compile("(?i)" + pattern)
+	if caseInsensetive {
+		pattern = "(?i)" + pattern
+	}
+
+	re, err := regexp.Compile(pattern)
 	if err != nil {
 		return nil, err
 	}

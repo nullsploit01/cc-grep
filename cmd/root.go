@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var caseInsensetive bool
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "ccgrep [pattern] [file]",
@@ -37,15 +39,15 @@ to quickly create a Cobra application.`,
 		defer file.Close()
 
 		g := internal.NewGrep()
-		matches, err := g.Grep(pattern, file)
+		matches, err := g.Grep(pattern, file, caseInsensetive)
 		if err != nil {
 			cmd.PrintErrln("Error running grep:", err)
 			os.Exit(1)
 		}
 
 		output := strings.Join(matches, "\n")
-		if len(matches) > 0 && matches[len(matches)-1] == "" {
-			output = strings.TrimRight(output, "\n")
+		if len(matches) > 0 {
+			output += "\n"
 		}
 
 		cmd.OutOrStdout().Write([]byte(output))
@@ -70,5 +72,5 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().BoolVarP(&caseInsensetive, "case-insensetive", "i", false, "Case insensetive")
 }
