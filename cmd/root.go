@@ -33,42 +33,39 @@ to quickly create a Cobra application.`,
 
 		pattern := args[0]
 		fileName := args[1]
-
 		g := internal.NewGrep()
 
-		if recursive {
-			matches, err := g.RecursiveGrep(fileName, pattern, caseInsensetive, invert)
+		handleError := func(err error) {
 			if err != nil {
 				cmd.ErrOrStderr().Write([]byte(err.Error() + "\n"))
 				os.Exit(1)
 			}
+		}
 
+		printMatches := func(fileName string, matches []string) {
 			for _, match := range matches {
-				for _, m := range match.Matches {
-					cmd.OutOrStdout().Write([]byte(match.FileName + ": " + m + "\n"))
-				}
+				cmd.OutOrStdout().Write([]byte(fileName + ": " + match + "\n"))
 			}
-
-			os.Exit(0)
 		}
 
-		matches, err := g.Grep(pattern, fileName, caseInsensetive, invert)
-		if err != nil {
-			cmd.ErrOrStderr().Write([]byte(err.Error() + "\n"))
-			os.Exit(1)
-		}
+		if recursive {
+			recursiveMatches, err := g.RecursiveGrep(fileName, pattern, caseInsensetive, invert)
+			handleError(err)
 
-		output := strings.Join(matches, "\n")
-		if len(matches) > 0 {
-			output += "\n"
-		}
+			for _, result := range recursiveMatches {
+				printMatches(result.FileName, result.Matches)
+			}
+		} else {
+			matches, err := g.Grep(pattern, fileName, caseInsensetive, invert)
+			handleError(err)
 
-		cmd.OutOrStdout().Write([]byte(output))
+			if len(matches) > 0 {
+				cmd.OutOrStdout().Write([]byte(strings.Join(matches, "\n") + "\n"))
+			}
+		}
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -77,14 +74,6 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cc-grep.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 	rootCmd.Flags().BoolVarP(&caseInsensetive, "case-insensetive", "i", false, "Case insensetive")
 	rootCmd.Flags().BoolVarP(&recursive, "recursive", "r", false, "Recursive")
 	rootCmd.Flags().BoolVarP(&invert, "invert", "v", false, "Invert")
