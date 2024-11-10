@@ -15,16 +15,29 @@ var caseInsensetive bool
 var recursive bool
 var invert bool
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "ccgrep [pattern] [file]",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Search for a pattern in a file or directory, with options for case insensitivity, recursion, and inverted matches.",
+	Long: `ccgrep is a tool to search for a specified pattern in files, with support for advanced options.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Flags:
+	-i, --case-insensitive  Perform a case-insensitive search.
+	-r, --recursive         Search recursively within directories.
+	-v, --invert            Return lines that do NOT match the pattern.
+
+	Examples:
+	# Basic usage: search for "example" in file.txt
+	ccgrep example file.txt
+
+	# Case-insensitive search
+	ccgrep -i example file.txt
+
+	# Recursive search for "example" in all files under a directory
+	ccgrep -r example /path/to/directory
+
+	# Invert match: return lines that do NOT contain "example"
+	ccgrep -v example file.txt
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 2 {
 			cmd.Help()
