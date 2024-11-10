@@ -36,7 +36,18 @@ to quickly create a Cobra application.`,
 		g := internal.NewGrep()
 
 		if recursive {
-			g.RecursiveGrep()
+			matches, err := g.RecursiveGrep(fileName, pattern, caseInsensetive)
+			if err != nil {
+				cmd.ErrOrStderr().Write([]byte(err.Error() + "\n"))
+				os.Exit(1)
+			}
+
+			for _, match := range matches {
+				for _, m := range match.Matches {
+					cmd.OutOrStdout().Write([]byte(match.FileName + ": " + m + "\n"))
+				}
+			}
+
 			os.Exit(0)
 		}
 
@@ -74,4 +85,5 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolVarP(&caseInsensetive, "case-insensetive", "i", false, "Case insensetive")
+	rootCmd.Flags().BoolVarP(&recursive, "recursive", "r", false, "Recursive")
 }

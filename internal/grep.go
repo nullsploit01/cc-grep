@@ -9,6 +9,11 @@ import (
 type Grep struct {
 }
 
+type RecursiveGrepResult struct {
+	FileName string
+	Matches  []string
+}
+
 func NewGrep() *Grep {
 	return &Grep{}
 }
@@ -25,8 +30,34 @@ func (g *Grep) Grep(pattern string, fileName string, caseInsensetive bool) ([]st
 		return nil, err
 	}
 
+	return g.GetMatches(string(content), pattern, caseInsensetive)
+}
+
+func (g *Grep) RecursiveGrep(filePattern string, pattern string, caseInsensetive bool) ([]RecursiveGrepResult, error) {
+	files, err := ReadFilesFromGlob(filePattern)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []RecursiveGrepResult
+	for _, file := range files {
+		matches, err := g.Grep(pattern, file.Name(), caseInsensetive)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, RecursiveGrepResult{
+			FileName: file.Name(),
+			Matches:  matches,
+		})
+	}
+
+	return result, nil
+}
+
+func (g *Grep) GetMatches(content string, pattern string, caseInsensetive bool) ([]string, error) {
 	if pattern == "" {
-		return []string{string(content)}, nil
+		return []string{content}, nil
 	}
 
 	if caseInsensetive {
@@ -47,7 +78,4 @@ func (g *Grep) Grep(pattern string, fileName string, caseInsensetive bool) ([]st
 	}
 
 	return matches, nil
-}
-
-func (g *Grep) RecursiveGrep() {
 }

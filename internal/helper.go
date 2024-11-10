@@ -10,12 +10,33 @@ func ReadFile(fileName string) (*os.File, error) {
 }
 
 func ReadFilesFromGlob(pattern string) ([]*os.File, error) {
-	files, err := filepath.Glob(pattern)
+	baseDir := filepath.Dir(pattern)
+	filePattern := filepath.Base(pattern)
+	var fileNames []string
+
+	err := filepath.WalkDir(baseDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !d.IsDir() {
+			matches, err := filepath.Match(filePattern, filepath.Base(path))
+			if err != nil {
+				return err
+			}
+
+			if matches {
+				fileNames = append(fileNames, path)
+			}
+		}
+		return nil
+	})
+
 	if err != nil {
 		return nil, err
 	}
 
-	return ReadFiles(files)
+	return ReadFiles(fileNames)
 }
 
 func ReadFiles(fileNames []string) ([]*os.File, error) {
@@ -23,6 +44,10 @@ func ReadFiles(fileNames []string) ([]*os.File, error) {
 	for _, fileName := range fileNames {
 		file, err := ReadFile(fileName)
 		if err != nil {
+			for _, f := range files {
+				f.Close()
+			}
+
 			return nil, err
 		}
 		files = append(files, file)
